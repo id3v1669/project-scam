@@ -8,6 +8,9 @@ edition = "2024"
 iced = { version = "0.13.1" , features = [
 	"tokio",
 	"svg",
+    "canvas",
+    "advanced",
+    "debug",
 ]}
 
 clap = { version = "4.5.34", features = ["derive"] }

@@ -2,6 +2,18 @@
 pkgs.mkShell {
   name = "prc devShell";
   nativeBuildInputs = with pkgs; [
+    nerd-fonts.terminess-ttf
+      nerd-fonts.jetbrains-mono
+      noto-fonts
+      noto-fonts-cjk-sans
+      noto-fonts-emoji
+      liberation_ttf
+      fira-code
+      _0xproto
+      fira-code-symbols
+      proggyfonts
+
+
     # Compilers
     cargo
     rustc

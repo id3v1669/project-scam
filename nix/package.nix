@@ -22,6 +22,7 @@ rustPlatform.buildRustPackage rec {
     glib
     gdk-pixbuf
     atkmm
+    nerd-fonts.terminess-ttf
 
     fontconfig
     vulkan-loader

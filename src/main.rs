@@ -1,5 +1,8 @@
 use clap::Parser;
 
+mod iced_launch;
+mod views;
+
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Args {
@@ -8,7 +11,6 @@ struct Args {
     debug: bool,
 }
 
-// main func that calls daemon::launch func if daemon flag is set
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let args = Args::parse();
@@ -22,7 +24,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
     log::debug!("Logger initialized");
 
-    println!("Hello world...");
+    crate::iced_launch::custom_start();
 
     Ok(())
 }
