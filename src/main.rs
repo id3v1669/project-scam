@@ -25,8 +25,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     env_logger::init();
     log::debug!("Logger initialized");
+    
+    //init savefile
+    let game_data = crate::objects::game_data::GAMEDATA.lock().unwrap();
+    // unrelease config to avoid deadlock
+    drop(game_data);
 
-    crate::iced_launch::custom_start();
+    let _ = crate::iced_launch::custom_start();
 
     Ok(())
 }

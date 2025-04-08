@@ -9,7 +9,6 @@ pub fn view(
     popup_message: &String,
     active_location: i32,
 ) -> Element<'static, Message> {
-    // Top row with background color
     let top_bar =
         container(row![button("New email").on_press(Message::Empty).style(
             |_, status| crate::styles::buttons::new_email_button(status, false)

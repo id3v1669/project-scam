@@ -1,3 +1,10 @@
+use serde::{Serialize, Deserialize};
+use once_cell::sync::Lazy;
+use std::sync::Mutex;
+
+pub static GAMEDATA: Lazy<Mutex<GameData>> = Lazy::new(|| Mutex::new(GameData::load()));
+
+#[derive(Serialize, Deserialize)]
 pub struct GameData {
     pub email_quest: EmailQuest,
     pub message_quest: MessageQuest,
@@ -13,7 +20,10 @@ impl Default for GameData {
 }
 impl GameData {
     pub fn new() -> Self {
-        Self::default()
+        let data = Self::default();
+        data.save().expect("Failed to save game data");
+        data
+
     }
     fn total_stars(&self) -> f32 {
         let mut total_stars = 0.0;
@@ -21,9 +31,41 @@ impl GameData {
         total_stars += self.message_quest.stars();
         total_stars
     }
+    pub fn save(&self) -> std::io::Result<()> {
+        let directories = directories::ProjectDirs::from("com", "id3v1669", "ProjectScam").expect("Failed to get directories");
+
+        match std::fs::create_dir_all(directories.config_dir()) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("Error creating directory: {}", e);
+                std::process::exit(1);
+            }
+        }
+        let file_path = directories.config_dir().join("game_data.json");
+        let file = serde_json::to_string_pretty(self)?;
+        match std::fs::write(file_path, file) {
+            Ok(_) => {}
+            Err(e) => {
+                eprintln!("Error writing to file: {}", e);
+                std::process::exit(1);
+            }
+        }
+        Ok(())
+    }
+    pub fn load() -> Self {
+        let directories = directories::ProjectDirs::from("com", "id3v1669", "ProjectScam").expect("Failed to get directories");
+        
+        let file_path = directories.config_dir().join("game_data.json");
+        
+        match std::fs::read_to_string(file_path) {
+            Ok(file) => serde_json::from_str(&file)
+                .unwrap_or_else(|_| Self::new()),
+            Err(_) => Self::new()
+        }
+    }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct EmailQuest {
     pub new_email: AchievementStatus,
     pub email_sender: AchievementStatus,
@@ -44,9 +86,6 @@ impl Default for EmailQuest {
     }
 }
 impl EmailQuest {
-    pub fn new() -> Self {
-        Self::default()
-    }
     fn stars(&self) -> f32 {
         let mut total_stars = 0.0;
         for each in self.iter() {
@@ -70,7 +109,7 @@ impl EmailQuest {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MessageQuest {
     pub money_ask: AchievementStatus,
 }
@@ -83,9 +122,6 @@ impl Default for MessageQuest {
     }
 }
 impl MessageQuest {
-    pub fn new() -> Self {
-        Self::default()
-    }
     fn stars(&self) -> f32 {
         let mut total_stars = 0.0;
         for each in self.iter() {
@@ -102,7 +138,7 @@ impl MessageQuest {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub enum AchievementStatus {
     Achieved,
     FoundWithHint,
