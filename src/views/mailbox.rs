@@ -7,8 +7,29 @@ use iced::{Color, Element, Length};
 pub fn view(
     show_popup: bool,
     popup_message: &String,
-    active_location: i32,
+    active_location: crate::objects::game_data::EmailQuestLocation,
+    hinted: crate::objects::game_data::EmailQuestItem,
 ) -> Element<'static, Message> {
+    let game_data = crate::objects::game_data::GAMEDATA.lock().unwrap();
+    let game_bar = container(row![
+        button("Hint").on_press(Message::Empty),
+        horizontal_space(),
+        text(format!(
+            "Stars: {}/{}",
+            game_data.email_quest.stars(),
+            game_data.email_quest.iter().count(),
+        )),
+        text(format!(
+            "Quests: {}/{}",
+            game_data.email_quest.completed(),
+            game_data.email_quest.iter().count(),
+        )),
+    ])
+    .style(|_| iced::widget::container::Style {
+        text_color: iced::Color::parse("#ebdbb2").unwrap().into(),
+        ..Default::default()
+    })
+    .height(Length::Fixed(30.0));
     let top_bar =
         container(row![button("New email").on_press(Message::Empty).style(
             |_, status| crate::styles::buttons::new_email_button(status, false)
@@ -59,6 +80,7 @@ pub fn view(
 
     // Main content with dark background
     let main_content = container(column![
+        game_bar,
         top_bar,
         row![left_column, middle_column, right_column].height(Length::Fill)
     ])

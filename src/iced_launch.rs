@@ -1,25 +1,34 @@
 use iced::{Element, Executor, Settings, Task, Theme, application::Application};
 
-use crate::views::{level1, levels_menu, main_menu};
+use crate::views::{levels_menu, mailbox, main_menu};
+use crate::objects::game_data::{MainMenuItem, LevelsMenuItem, EmailQuestItem, MessageQuestItem};
 
 #[derive(Debug, Clone)]
 pub enum Message {
     SwitchView(CurrentView),
     ClosePopup,
+    ShowHint,
     Empty,
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ViewState {
+pub struct ViewState<T: crate::objects::game_data::HintData> {
     pub show_popup: bool,
     pub popup_message: String,
+    pub show_hint: T,
 }
+
+type MainMenuViewState = ViewState<MainMenuItem>;
+type LevelsMenuViewState = ViewState<LevelsMenuItem>;
+type EmailQuestViewState = ViewState<EmailQuestItem>;
+type MessageQuestViewState = ViewState<MessageQuestItem>;
+
 
 #[derive(Debug, Clone)]
 pub enum CurrentView {
-    MainMenu(ViewState),
-    LevelsMenu(ViewState),
-    Level1(ViewState),
+    MainMenu(MainMenuViewState),
+    LevelsMenu(LevelsMenuViewState),
+    Mailbox(EmailQuestViewState),
 }
 
 pub struct MyApp {
@@ -32,6 +41,7 @@ impl Default for MyApp {
             current_view: CurrentView::MainMenu(ViewState {
                 show_popup: true,
                 popup_message: "Welcome!".to_string(),
+                show_hint: MainMenuItem::None,
             }),
         }
     }
@@ -56,7 +66,15 @@ impl MyApp {
                 match &mut self.current_view {
                     CurrentView::MainMenu(state) => state.show_popup = false,
                     CurrentView::LevelsMenu(state) => state.show_popup = false,
-                    CurrentView::Level1(state) => state.show_popup = false,
+                    CurrentView::Mailbox(state) => state.show_popup = false,
+                }
+            }
+            Message::ShowHint => {
+                match &mut self.current_view {
+                    CurrentView::Mailbox(state) => {
+
+                    }
+                    _ => {}
                 }
             }
             Message::Empty => {}
@@ -70,7 +88,7 @@ impl MyApp {
             CurrentView::LevelsMenu(state) => {
                 levels_menu::view(state.show_popup, &state.popup_message)
             }
-            CurrentView::Level1(state) => level1::view(state.show_popup, &state.popup_message, 1),
+            CurrentView::Mailbox(state) => mailbox::view(state.show_popup, &state.popup_message, crate::objects::game_data::EmailQuestLocation::Inbox, crate::objects::game_data::EmailQuestItem::None),
         }
     }
 }

@@ -6,9 +6,10 @@ pub fn view(show_popup: bool, popup_message: &String) -> Element<'static, Messag
     container(column![
         text("Welcome to Scam Gamification Game"),
         button("Start").on_press(Message::SwitchView(
-            crate::iced_launch::CurrentView::Level1(crate::iced_launch::ViewState {
+            crate::iced_launch::CurrentView::Mailbox(crate::iced_launch::ViewState {
                 show_popup: true,
                 popup_message: "Welcome to Level 1!".to_string(),
+                show_hint: crate::objects::game_data::EmailQuestItem::None,
             })
         )),
         // button("Levels").on_press(Message::SwitchView(

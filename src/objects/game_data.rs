@@ -1,5 +1,5 @@
-use serde::{Serialize, Deserialize};
 use once_cell::sync::Lazy;
+use serde::{Deserialize, Serialize};
 use std::sync::Mutex;
 
 pub static GAMEDATA: Lazy<Mutex<GameData>> = Lazy::new(|| Mutex::new(GameData::load()));
@@ -23,7 +23,6 @@ impl GameData {
         let data = Self::default();
         data.save().expect("Failed to save game data");
         data
-
     }
     fn total_stars(&self) -> f32 {
         let mut total_stars = 0.0;
@@ -32,7 +31,8 @@ impl GameData {
         total_stars
     }
     pub fn save(&self) -> std::io::Result<()> {
-        let directories = directories::ProjectDirs::from("com", "id3v1669", "ProjectScam").expect("Failed to get directories");
+        let directories = directories::ProjectDirs::from("com", "id3v1669", "ProjectScam")
+            .expect("Failed to get directories");
 
         match std::fs::create_dir_all(directories.config_dir()) {
             Ok(_) => {}
@@ -53,16 +53,53 @@ impl GameData {
         Ok(())
     }
     pub fn load() -> Self {
-        let directories = directories::ProjectDirs::from("com", "id3v1669", "ProjectScam").expect("Failed to get directories");
-        
+        let directories = directories::ProjectDirs::from("com", "id3v1669", "ProjectScam")
+            .expect("Failed to get directories");
+
         let file_path = directories.config_dir().join("game_data.json");
-        
+
         match std::fs::read_to_string(file_path) {
-            Ok(file) => serde_json::from_str(&file)
-                .unwrap_or_else(|_| Self::new()),
-            Err(_) => Self::new()
+            Ok(file) => serde_json::from_str(&file).unwrap_or_else(|_| Self::new()),
+            Err(_) => Self::new(),
         }
     }
+}
+
+pub trait HintData: std::fmt::Debug + Default + Clone {}
+
+impl HintData for EmailQuestItem {}
+impl HintData for MessageQuestItem {}
+impl HintData for MainMenuItem {}
+impl HintData for LevelsMenuItem {}
+
+
+#[derive(Default, Debug, Clone)]
+pub enum MainMenuItem {
+    #[default]
+    None,
+}
+
+#[derive(Default, Debug, Clone)]
+pub enum LevelsMenuItem {
+    #[default]
+    None,
+}
+
+#[derive(Default, Debug, Clone)]
+pub enum EmailQuestItem {
+    #[default]
+    None,
+    NewEmail,
+    EmailSender,
+    BlockedContent,
+    EmailAttachment,
+    SpamEmail,
+}
+
+pub enum EmailQuestLocation {
+    Inbox,
+    Spam,
+    NewEmail,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -86,7 +123,7 @@ impl Default for EmailQuest {
     }
 }
 impl EmailQuest {
-    fn stars(&self) -> f32 {
+    pub fn stars(&self) -> f32 {
         let mut total_stars = 0.0;
         for each in self.iter() {
             total_stars += match each {
@@ -96,6 +133,15 @@ impl EmailQuest {
             };
         }
         total_stars
+    }
+    pub fn completed(&self) -> i32 {
+        let mut completed = 0;
+        for each in self.iter() {
+            if each == &AchievementStatus::Achieved || each == &AchievementStatus::FoundWithHint {
+                completed += 1;
+            }
+        }
+        completed
     }
     pub fn iter(&self) -> impl Iterator<Item = &AchievementStatus> {
         [
@@ -107,6 +153,18 @@ impl EmailQuest {
         ]
         .into_iter()
     }
+}
+
+#[derive(Default, Debug, Clone)]
+pub enum MessageQuestItem {
+    #[default]
+    None,
+    MoneyAsk,
+}
+
+pub enum MessageQuestLocation {
+    Messages,
+    MoneyAskMessage,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -122,7 +180,7 @@ impl Default for MessageQuest {
     }
 }
 impl MessageQuest {
-    fn stars(&self) -> f32 {
+    pub fn stars(&self) -> f32 {
         let mut total_stars = 0.0;
         for each in self.iter() {
             total_stars += match each {
@@ -132,6 +190,15 @@ impl MessageQuest {
             };
         }
         total_stars
+    }
+    pub fn completed(&self) -> i32 {
+        let mut completed = 0;
+        for each in self.iter() {
+            if each == &AchievementStatus::Achieved || each == &AchievementStatus::FoundWithHint {
+                completed += 1;
+            }
+        }
+        completed
     }
     pub fn iter(&self) -> impl Iterator<Item = &AchievementStatus> {
         [&self.money_ask].into_iter()
