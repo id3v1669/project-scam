@@ -69,18 +69,16 @@ pub trait HintData: std::fmt::Debug + Default + Clone {}
 
 impl HintData for EmailQuestItem {}
 impl HintData for MessageQuestItem {}
-impl HintData for MainMenuItem {}
-impl HintData for LevelsMenuItem {}
+impl HintData for FillerItemLocation {}
 
+pub trait LocationData: std::fmt::Debug + Default + Clone {}
 
-#[derive(Default, Debug, Clone)]
-pub enum MainMenuItem {
-    #[default]
-    None,
-}
+impl LocationData for EmailQuestLocation {}
+impl LocationData for MessageQuestLocation {}
+impl LocationData for FillerItemLocation {}
 
 #[derive(Default, Debug, Clone)]
-pub enum LevelsMenuItem {
+pub enum FillerItemLocation {
     #[default]
     None,
 }
@@ -96,7 +94,9 @@ pub enum EmailQuestItem {
     SpamEmail,
 }
 
+#[derive(Default, Debug, Clone)]
 pub enum EmailQuestLocation {
+    #[default]
     Inbox,
     Spam,
     NewEmail,
@@ -162,7 +162,9 @@ pub enum MessageQuestItem {
     MoneyAsk,
 }
 
+#[derive(Default, Debug, Clone)]
 pub enum MessageQuestLocation {
+    #[default]
     Messages,
     MoneyAskMessage,
 }

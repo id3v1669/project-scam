@@ -1,7 +1,7 @@
 use iced::{Element, Executor, Settings, Task, Theme, application::Application};
 
 use crate::views::{levels_menu, mailbox, main_menu};
-use crate::objects::game_data::{MainMenuItem, LevelsMenuItem, EmailQuestItem, MessageQuestItem};
+use crate::objects::game_data::{FillerItemLocation, EmailQuestItem, MessageQuestItem, EmailQuestLocation, MessageQuestLocation};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -12,16 +12,17 @@ pub enum Message {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ViewState<T: crate::objects::game_data::HintData> {
+pub struct ViewState<T1: crate::objects::game_data::HintData, T2: crate::objects::game_data::LocationData> {
     pub show_popup: bool,
     pub popup_message: String,
-    pub show_hint: T,
+    pub show_hint: T1,
+    pub location: T2,
 }
 
-type MainMenuViewState = ViewState<MainMenuItem>;
-type LevelsMenuViewState = ViewState<LevelsMenuItem>;
-type EmailQuestViewState = ViewState<EmailQuestItem>;
-type MessageQuestViewState = ViewState<MessageQuestItem>;
+type MainMenuViewState = ViewState<FillerItemLocation, FillerItemLocation>;
+type LevelsMenuViewState = ViewState<FillerItemLocation, FillerItemLocation>;
+type EmailQuestViewState = ViewState<EmailQuestItem, EmailQuestLocation>;
+type MessageQuestViewState = ViewState<MessageQuestItem, MessageQuestLocation>;
 
 
 #[derive(Debug, Clone)]
@@ -41,7 +42,8 @@ impl Default for MyApp {
             current_view: CurrentView::MainMenu(ViewState {
                 show_popup: true,
                 popup_message: "Welcome!".to_string(),
-                show_hint: MainMenuItem::None,
+                show_hint: FillerItemLocation::None,
+                location: FillerItemLocation::None,
             }),
         }
     }

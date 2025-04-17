@@ -10,6 +10,7 @@ pub fn view(show_popup: bool, popup_message: &String) -> Element<'static, Messag
                 show_popup: true,
                 popup_message: "Welcome to Level 1!".to_string(),
                 show_hint: crate::objects::game_data::EmailQuestItem::None,
+                location: crate::objects::game_data::EmailQuestLocation::Inbox,
             })
         )),
         // button("Levels").on_press(Message::SwitchView(
