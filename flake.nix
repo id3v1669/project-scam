@@ -21,7 +21,7 @@
     pkgsFor = (system: import nixpkgs {
       inherit system;
       overlays = [
-        fenix.overlays.default
+        inputs.fenix.overlays.default
       ];
       config = {
         allowUnfree = true;
@@ -36,7 +36,7 @@
     defaultPackage = eachSystem (system: self.packages.${system}.default);
     
     devShells = eachSystem (system: {
-      default = (pkgsFor system).callPackage ./nix/shell.nix { fenix = fenix; };
+      default = (pkgsFor system).callPackage ./nix/shell.nix { fenix = inputs.fenix; };
     });
   };
 }

@@ -1,4 +1,5 @@
 use crate::iced_launch::Message;
+use crate::objects::game_data::EmailQuestItem::{BlockedContent, EmailAttachment, EmailSender, SpamFolder, SpamEmail};
 use iced::advanced::Widget;
 use iced::theme;
 use iced::widget::{button, column, container, horizontal_space, row, stack, text};
@@ -7,9 +8,25 @@ use iced::{Color, Element, Length};
 pub fn view(
     show_popup: bool,
     popup_message: &String,
-    active_location: crate::objects::game_data::EmailQuestLocation,
+    location: crate::objects::game_data::EmailQuestLocation,
     hinted: crate::objects::game_data::EmailQuestItem,
 ) -> Element<'static, Message> {
+    // cloning values due to use of move in buttons
+    let inbox_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Inbox).clone();
+    let inbox_button_hinted = (matches!(hinted, EmailSender | BlockedContent | EmailAttachment) && !inbox_button_active).clone();
+    let spam_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Spam).clone();
+    let spam_button_hinted = (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active).clone();
+
+    println!("show_popup: {:?}", show_popup);
+    println!("popup_message: {:?}", popup_message);
+    println!("location: {:?}", location);
+    println!("hinted: {:?}", hinted);
+    println!("inbox_button_active: {:?}", inbox_button_active);
+    println!("inbox_button_hinted: {:?}", inbox_button_hinted);
+    println!("spam_button_active: {:?}", spam_button_active);
+    println!("spam_button_hinted: {:?}", spam_button_hinted);
+
+
     let game_data = crate::objects::game_data::GAMEDATA.lock().unwrap();
     let game_bar = container(row![
         button("Hint").on_press(Message::Empty),
@@ -44,37 +61,69 @@ pub fn view(
     // Left column
     let left_column = column![
         button("Inbox")
-            .on_press(Message::Empty)
-            .style(|_, status| crate::styles::buttons::email_folder_button(status, false, true))
+            .on_press(Message::ChangeMailboxFolderLocation(crate::objects::game_data::EmailQuestLocation::Inbox))
+            .style(move |_, status| 
+                crate::styles::buttons::email_folder_button(status, inbox_button_hinted, inbox_button_active)
+            )
             .width(Length::Fill),
         button("Spam")
-            .on_press(Message::Empty)
-            .style(|_, status| crate::styles::buttons::email_folder_button(status, true, false))
+            .on_press(Message::ChangeMailboxFolderLocation(crate::objects::game_data::EmailQuestLocation::Spam))
+            .style(move |_, status| 
+                crate::styles::buttons::email_folder_button(status, spam_button_hinted, spam_button_active)
+            )
             .width(Length::Fill),
     ]
     .width(Length::Fixed(100.0));
 
-    let middle_column = iced::widget::Column::with_children(
-        (1..=25) // Creates a range from 1 to 25
-            .map(|i| {
-                container(
-                    iced::widget::text("ToBeEmail").align_x(iced::alignment::Horizontal::Left),
-                )
-                .style(|_| crate::styles::other::empty_email())
-                .padding(iced::Padding {
-                    top: 15.0,
-                    right: 10.0,
-                    bottom: 15.0,
-                    left: 10.0,
-                })
-                .width(Length::Fill)
-                .into()
-            })
-            .collect::<Vec<Element<Message>>>(), // Collect into Vec<Element>
-    )
-    .width(Length::Fixed(200.0))
-    .align_x(iced::alignment::Horizontal::Left)
-    .spacing(0);
+    let middle_column = match location {
+        crate::objects::game_data::EmailQuestLocation::Inbox => {
+            iced::widget::Column::with_children(
+                (1..=50) // Creates a range from 1 to 25
+                    .map(|i| {
+                        container(
+                            iced::widget::text("ToBeEmail").align_x(iced::alignment::Horizontal::Left),
+                        )
+                        .style(|_| crate::styles::other::empty_email())
+                        .padding(iced::Padding {
+                            top: 15.0,
+                            right: 10.0,
+                            bottom: 15.0,
+                            left: 10.0,
+                        })
+                        .width(Length::Fill)
+                        .into()
+                    })
+                    .collect::<Vec<Element<Message>>>(), // Collect into Vec<Element>
+            )
+            .width(Length::Fixed(200.0))
+            .align_x(iced::alignment::Horizontal::Left)
+            .spacing(0)
+        }
+        crate::objects::game_data::EmailQuestLocation::Spam => {
+            iced::widget::Column::with_children(
+                (1..=50) // Creates a range from 1 to 25
+                    .map(|i| {
+                        container(
+                            iced::widget::text("ToBeSpam").align_x(iced::alignment::Horizontal::Left),
+                        )
+                        .style(|_| crate::styles::other::empty_email())
+                        .padding(iced::Padding {
+                            top: 15.0,
+                            right: 10.0,
+                            bottom: 15.0,
+                            left: 10.0,
+                        })
+                        .width(Length::Fill)
+                        .into()
+                    })
+                    .collect::<Vec<Element<Message>>>(), // Collect into Vec<Element>
+            )
+            .width(Length::Fixed(200.0))
+            .align_x(iced::alignment::Horizontal::Left)
+            .spacing(0)
+        }
+        _ => column![]
+    };
 
     let right_column = column![text("Select an item to read"),];
 

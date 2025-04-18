@@ -83,7 +83,7 @@ pub enum FillerItemLocation {
     None,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Copy)]
 pub enum EmailQuestItem {
     #[default]
     None,
@@ -91,15 +91,17 @@ pub enum EmailQuestItem {
     EmailSender,
     BlockedContent,
     EmailAttachment,
+    SpamFolder,
     SpamEmail,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq, Copy)]
 pub enum EmailQuestLocation {
     #[default]
     Inbox,
     Spam,
     NewEmail,
+    ReadEmail,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -108,6 +110,7 @@ pub struct EmailQuest {
     pub email_sender: AchievementStatus,
     pub blocked_content: AchievementStatus,
     pub email_attachment: AchievementStatus,
+    pub spam_folder: AchievementStatus,
     pub spam_email: AchievementStatus,
 }
 
@@ -118,6 +121,7 @@ impl Default for EmailQuest {
             email_sender: AchievementStatus::NotAchieved,
             blocked_content: AchievementStatus::NotAchieved,
             email_attachment: AchievementStatus::NotAchieved,
+            spam_folder: AchievementStatus::NotAchieved,
             spam_email: AchievementStatus::NotAchieved,
         }
     }
@@ -149,20 +153,21 @@ impl EmailQuest {
             &self.email_sender,
             &self.blocked_content,
             &self.email_attachment,
+            &self.spam_folder,
             &self.spam_email,
         ]
         .into_iter()
     }
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Copy)]
 pub enum MessageQuestItem {
     #[default]
     None,
     MoneyAsk,
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, Copy)]
 pub enum MessageQuestLocation {
     #[default]
     Messages,

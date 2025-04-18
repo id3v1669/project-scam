@@ -9,8 +9,8 @@ pub fn view(show_popup: bool, popup_message: &String) -> Element<'static, Messag
             crate::iced_launch::CurrentView::Mailbox(crate::iced_launch::ViewState {
                 show_popup: true,
                 popup_message: "Welcome to Level 1!".to_string(),
-                show_hint: crate::objects::game_data::EmailQuestItem::None,
                 location: crate::objects::game_data::EmailQuestLocation::Inbox,
+                hinted: crate::objects::game_data::EmailQuestItem::None,
             })
         )),
         // button("Levels").on_press(Message::SwitchView(
