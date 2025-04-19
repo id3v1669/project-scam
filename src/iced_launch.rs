@@ -3,7 +3,7 @@ use iced::{Element, Executor, Settings, Task, Theme, application::Application};
 use crate::objects::game_data::{
     EmailQuestItem, EmailQuestLocation, FillerItemLocation, MessageQuestItem, MessageQuestLocation, LocationData, HintData,
 };
-use crate::views::{levels_menu, mailbox, main_menu};
+use crate::views::{levels_menu, mailbox, main_menu, message_quest};
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -106,14 +106,14 @@ impl MyApp {
             CurrentView::Mailbox(state) => mailbox::view(
                 state.show_popup,
                 &state.popup_message,
-                crate::objects::game_data::EmailQuestLocation::Inbox,
-                crate::objects::game_data::EmailQuestItem::None,
+                state.location,
+                state.hinted,
             ),
-            CurrentView::MessageQuest(state) => mailbox::view(
+            CurrentView::MessageQuest(state) => message_quest::view(
                 state.show_popup,
                 &state.popup_message,
-                crate::objects::game_data::EmailQuestLocation::Inbox,
-                crate::objects::game_data::EmailQuestItem::None,
+                state.location,
+                state.hinted,
             )
         }
     }

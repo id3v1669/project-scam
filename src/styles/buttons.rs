@@ -5,6 +5,9 @@ pub fn email_folder_button(
     hinted: bool,
     custom_status: bool,
 ) -> iced::widget::button::Style {
+    // println!("status: {:?}", status);
+    // println!("hinted: {:?}", hinted);
+    // println!("custom_status: {:?}", custom_status);
     iced::widget::button::Style {
         background: {
             match status {

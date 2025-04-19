@@ -12,19 +12,19 @@ pub fn view(
     hinted: crate::objects::game_data::EmailQuestItem,
 ) -> Element<'static, Message> {
     // cloning values due to use of move in buttons
-    let inbox_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Inbox).clone();
-    let inbox_button_hinted = (matches!(hinted, EmailSender | BlockedContent | EmailAttachment) && !inbox_button_active).clone();
-    let spam_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Spam).clone();
-    let spam_button_hinted = (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active).clone();
+    // let inbox_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Inbox).clone();
+    // let inbox_button_hinted = (matches!(hinted, EmailSender | BlockedContent | EmailAttachment) && !inbox_button_active).clone();
+    // let spam_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Spam).clone();
+    // let spam_button_hinted = (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active).clone();
 
     println!("show_popup: {:?}", show_popup);
     println!("popup_message: {:?}", popup_message);
     println!("location: {:?}", location);
     println!("hinted: {:?}", hinted);
-    println!("inbox_button_active: {:?}", inbox_button_active);
-    println!("inbox_button_hinted: {:?}", inbox_button_hinted);
-    println!("spam_button_active: {:?}", spam_button_active);
-    println!("spam_button_hinted: {:?}", spam_button_hinted);
+    // println!("inbox_button_active: {:?}", inbox_button_active);
+    // println!("inbox_button_hinted: {:?}", inbox_button_hinted);
+    // println!("spam_button_active: {:?}", spam_button_active);
+    // println!("spam_button_hinted: {:?}", spam_button_hinted);
 
 
     let game_data = crate::objects::game_data::GAMEDATA.lock().unwrap();
@@ -62,14 +62,21 @@ pub fn view(
     let left_column = column![
         button("Inbox")
             .on_press(Message::ChangeMailboxFolderLocation(crate::objects::game_data::EmailQuestLocation::Inbox))
-            .style(move |_, status| 
+            .style(move |_, status| {
+                let inbox_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Inbox);
+                let inbox_button_hinted = (matches!(hinted, EmailSender | BlockedContent | EmailAttachment) && !inbox_button_active);
                 crate::styles::buttons::email_folder_button(status, inbox_button_hinted, inbox_button_active)
+            }
             )
             .width(Length::Fill),
         button("Spam")
             .on_press(Message::ChangeMailboxFolderLocation(crate::objects::game_data::EmailQuestLocation::Spam))
             .style(move |_, status| 
-                crate::styles::buttons::email_folder_button(status, spam_button_hinted, spam_button_active)
+                {
+                    let spam_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Spam);
+                    let spam_button_hinted = (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active);
+                    crate::styles::buttons::email_folder_button(status, spam_button_hinted, spam_button_active)
+                }
             )
             .width(Length::Fill),
     ]

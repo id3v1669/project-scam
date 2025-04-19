@@ -36,7 +36,9 @@
     defaultPackage = eachSystem (system: self.packages.${system}.default);
     
     devShells = eachSystem (system: {
-      default = (pkgsFor system).callPackage ./nix/shell.nix { fenix = inputs.fenix; };
+      default = (pkgsFor system).callPackage ./nix/shell.nix {
+        fenix = inputs.fenix;
+      };
     });
   };
 }
