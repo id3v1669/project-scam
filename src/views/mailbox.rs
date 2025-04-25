@@ -1,32 +1,18 @@
 use crate::iced_launch::Message;
-use crate::objects::game_data::EmailQuestItem::{BlockedContent, EmailAttachment, EmailSender, SpamFolder, SpamEmail};
+use crate::objects::game_data::EmailQuestItem::{
+    BlockedContent, EmailAttachment, EmailSender, SpamEmail, SpamFolder,
+};
 use iced::advanced::Widget;
 use iced::theme;
 use iced::widget::{button, column, container, horizontal_space, row, stack, text};
 use iced::{Color, Element, Length};
 
 pub fn view(
-    show_popup: bool,
-    popup_message: &String,
     location: crate::objects::game_data::EmailQuestLocation,
+    sublocation: crate::objects::game_data::EmailQuestSubLocation,
     hinted: crate::objects::game_data::EmailQuestItem,
+    dynamic_objects: Vec<String>,
 ) -> Element<'static, Message> {
-    // cloning values due to use of move in buttons
-    // let inbox_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Inbox).clone();
-    // let inbox_button_hinted = (matches!(hinted, EmailSender | BlockedContent | EmailAttachment) && !inbox_button_active).clone();
-    // let spam_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Spam).clone();
-    // let spam_button_hinted = (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active).clone();
-
-    println!("show_popup: {:?}", show_popup);
-    println!("popup_message: {:?}", popup_message);
-    println!("location: {:?}", location);
-    println!("hinted: {:?}", hinted);
-    // println!("inbox_button_active: {:?}", inbox_button_active);
-    // println!("inbox_button_hinted: {:?}", inbox_button_hinted);
-    // println!("spam_button_active: {:?}", spam_button_active);
-    // println!("spam_button_hinted: {:?}", spam_button_hinted);
-
-
     let game_data = crate::objects::game_data::GAMEDATA.lock().unwrap();
     let game_bar = container(row![
         button("Hint").on_press(Message::Empty),
@@ -61,23 +47,41 @@ pub fn view(
     // Left column
     let left_column = column![
         button("Inbox")
-            .on_press(Message::ChangeMailboxFolderLocation(crate::objects::game_data::EmailQuestLocation::Inbox))
+            .on_press(Message::ChangeMailboxFolderLocation(
+                crate::objects::game_data::EmailQuestLocation::Inbox
+            ))
             .style(move |_, status| {
-                let inbox_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Inbox);
-                let inbox_button_hinted = (matches!(hinted, EmailSender | BlockedContent | EmailAttachment) && !inbox_button_active);
-                crate::styles::buttons::email_folder_button(status, inbox_button_hinted, inbox_button_active)
-            }
-            )
+                let inbox_button_active = matches!(
+                    location,
+                    crate::objects::game_data::EmailQuestLocation::Inbox
+                );
+                let inbox_button_hinted =
+                    (matches!(hinted, EmailSender | BlockedContent | EmailAttachment)
+                        && !inbox_button_active);
+                crate::styles::buttons::email_folder_button(
+                    status,
+                    inbox_button_hinted,
+                    inbox_button_active,
+                )
+            })
             .width(Length::Fill),
         button("Spam")
-            .on_press(Message::ChangeMailboxFolderLocation(crate::objects::game_data::EmailQuestLocation::Spam))
-            .style(move |_, status| 
-                {
-                    let spam_button_active = matches!(location, crate::objects::game_data::EmailQuestLocation::Spam);
-                    let spam_button_hinted = (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active);
-                    crate::styles::buttons::email_folder_button(status, spam_button_hinted, spam_button_active)
-                }
-            )
+            .on_press(Message::ChangeMailboxFolderLocation(
+                crate::objects::game_data::EmailQuestLocation::Spam
+            ))
+            .style(move |_, status| {
+                let spam_button_active = matches!(
+                    location,
+                    crate::objects::game_data::EmailQuestLocation::Spam
+                );
+                let spam_button_hinted =
+                    (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active);
+                crate::styles::buttons::email_folder_button(
+                    status,
+                    spam_button_hinted,
+                    spam_button_active,
+                )
+            })
             .width(Length::Fill),
     ]
     .width(Length::Fixed(100.0));
@@ -85,11 +89,44 @@ pub fn view(
     let middle_column = match location {
         crate::objects::game_data::EmailQuestLocation::Inbox => {
             iced::widget::Column::with_children(
-                (1..=50) // Creates a range from 1 to 25
-                    .map(|i| {
-                        container(
-                            iced::widget::text("ToBeEmail").align_x(iced::alignment::Horizontal::Left),
-                        )
+                std::iter::once(
+                    button(
+                        column![
+                            text("Reset Password").size(16).font(iced::Font {
+                                family: iced::font::Family::SansSerif,
+                                weight: iced::font::Weight::Bold,
+                                stretch: iced::font::Stretch::Normal,
+                                style: iced::font::Style::Normal,
+                            }),
+                            text("To recover password ...").size(14)
+                        ]
+                        .spacing(4),
+                    )
+                    .on_press(Message::ChangeMailboxFolderSublocation(
+                        crate::objects::game_data::EmailQuestSubLocation::Inbox,
+                    ))
+                    .padding(iced::Padding {
+                        top: 0.0,
+                        right: 0.0,
+                        bottom: 0.0,
+                        left: 0.0,
+                    })
+                    .style(move |_, status| {
+                        let email = matches!(
+                            sublocation,
+                            crate::objects::game_data::EmailQuestSubLocation::Inbox
+                        );
+                        let email_button_hinted =
+                            (matches!(hinted, EmailSender | BlockedContent | EmailAttachment)
+                                && !email);
+                        crate::styles::buttons::email_button(status, email_button_hinted, email)
+                    })
+                    .width(Length::Fill)
+                    .height(Length::Fixed(50.0))
+                    .into(),
+                )
+                .chain((1..=50).map(|i| {
+                    container(iced::widget::text(""))
                         .style(|_| crate::styles::other::empty_email())
                         .padding(iced::Padding {
                             top: 15.0,
@@ -98,9 +135,10 @@ pub fn view(
                             left: 10.0,
                         })
                         .width(Length::Fill)
+                        .height(Length::Fixed(50.0))
                         .into()
-                    })
-                    .collect::<Vec<Element<Message>>>(), // Collect into Vec<Element>
+                }))
+                .collect::<Vec<Element<Message>>>(),
             )
             .width(Length::Fixed(200.0))
             .align_x(iced::alignment::Horizontal::Left)
@@ -108,11 +146,44 @@ pub fn view(
         }
         crate::objects::game_data::EmailQuestLocation::Spam => {
             iced::widget::Column::with_children(
-                (1..=50) // Creates a range from 1 to 25
-                    .map(|i| {
-                        container(
-                            iced::widget::text("ToBeSpam").align_x(iced::alignment::Horizontal::Left),
-                        )
+                std::iter::once(
+                    //container(
+                    button(
+                        column![
+                            text("Trixie").size(16).font(iced::Font {
+                                family: iced::font::Family::SansSerif,
+                                weight: iced::font::Weight::Bold,
+                                stretch: iced::font::Stretch::Normal,
+                                style: iced::font::Style::Normal,
+                            }),
+                            text("Me met a few ...").size(14)
+                        ]
+                        .spacing(4),
+                    )
+                    .on_press(Message::ChangeMailboxFolderSublocation(
+                        crate::objects::game_data::EmailQuestSubLocation::Spam,
+                    ))
+                    .padding(iced::Padding {
+                        top: 0.0,
+                        right: 0.0,
+                        bottom: 0.0,
+                        left: 0.0,
+                    })
+                    .style(move |_, status| {
+                        let email = matches!(
+                            sublocation,
+                            crate::objects::game_data::EmailQuestSubLocation::Spam
+                        );
+                        let email_button_hinted =
+                            (matches!(hinted, SpamFolder | SpamEmail) && !email);
+                        crate::styles::buttons::email_button(status, email_button_hinted, email)
+                    })
+                    .width(Length::Fill)
+                    .height(Length::Fixed(50.0))
+                    .into(),
+                )
+                .chain((1..=50).map(|i| {
+                    container(iced::widget::text(""))
                         .style(|_| crate::styles::other::empty_email())
                         .padding(iced::Padding {
                             top: 15.0,
@@ -121,18 +192,78 @@ pub fn view(
                             left: 10.0,
                         })
                         .width(Length::Fill)
+                        .height(Length::Fixed(50.0))
                         .into()
-                    })
-                    .collect::<Vec<Element<Message>>>(), // Collect into Vec<Element>
+                }))
+                .collect::<Vec<Element<Message>>>(),
             )
             .width(Length::Fixed(200.0))
             .align_x(iced::alignment::Horizontal::Left)
             .spacing(0)
         }
-        _ => column![]
+        _ => column![],
     };
 
-    let right_column = column![text("Select an item to read"),];
+    let right_column = match sublocation {
+        crate::objects::game_data::EmailQuestSubLocation::None => {
+            container(text("Select mail to read"))
+        }
+        crate::objects::game_data::EmailQuestSubLocation::Inbox => container(column![
+            container(text("Reset Password").size(20).font(iced::Font {
+                family: iced::font::Family::SansSerif,
+                weight: iced::font::Weight::Bold,
+                stretch: iced::font::Stretch::Normal,
+                style: iced::font::Style::Normal,
+            }))
+            .width(Length::Fill)
+            .height(Length::Fixed(60.0))
+            .padding(15) //workadound for text misalignment with container
+            .style(|_| container::Style {
+                background: Some(Color::parse("#504945").unwrap().into()),
+                border: iced::Border {
+                    color: Color::TRANSPARENT,
+                    width: 10.0,
+                    radius: 0.0.into(),
+                },
+                ..Default::default()
+            }),
+            container(column![
+                row![text("From: ").size(16), button("Google"),],
+                row![text("To: example@domain.com").size(16),],
+                crate::objects::custom_gui::splitter(
+                    Color::parse("#928374").unwrap().into(),
+                    2.0,
+                    10.0,
+                    10.0
+                ),
+                container(text("Centered Content").size(16))
+            ])
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .padding(15) //workadound for content misalignment with container
+            .style(|_| container::Style {
+                background: Some(Color::parse("#504945").unwrap().into()),
+                border: iced::Border {
+                    color: Color::TRANSPARENT,
+                    width: 10.0,
+                    radius: 0.0.into(),
+                },
+                ..Default::default()
+            })
+        ])
+        .style(|_| container::Style {
+            text_color: Color::parse("#ebdbb2").unwrap().into(),
+            ..Default::default()
+        })
+        .padding(10)
+        .width(Length::Fill),
+        crate::objects::game_data::EmailQuestSubLocation::Spam => {
+            container(column![text("Blocked content selected")])
+        }
+        crate::objects::game_data::EmailQuestSubLocation::NewEmail => {
+            container(column![text("Email attachment selected")])
+        }
+    };
 
     // Main content with dark background
     let main_content = container(column![
@@ -145,9 +276,8 @@ pub fn view(
         ..Default::default()
     });
 
-    // // Overlay with dimmed effect
-    //: iced::widget::Container<Message>
-    let overlay: iced::widget::Container<Message> = if show_popup {
+    // Overlay with dimmed effect
+    let overlay: iced::widget::Container<Message> = if !dynamic_objects[0].is_empty() {
         container(
             container(
                 column![
@@ -178,7 +308,7 @@ pub fn view(
                         bottom: 1.0,
                         left: 1.0
                     }),
-                    container(text("First task would be to write an email. \nButtons not related to quiz but required to press will have green border. \nTo begin, close this window and press New email button."))
+                    container(text(dynamic_objects[0].clone()))
                         .style(|_| container::Style {
                             text_color: Color::parse("#ebdbb2").unwrap().into(),
                             ..Default::default()
@@ -190,7 +320,7 @@ pub fn view(
                             left: 10.0
                         })
                 ]
-                .spacing(20)
+                .spacing(20),
             )
             .style(|_| container::Style {
                 background: Some(Color::parse("#1E1E1E").unwrap().into()),
@@ -201,7 +331,7 @@ pub fn view(
                 },
                 ..Default::default()
             })
-            .width(Length::Fixed(300.0)) // text container size required as horizontal_space doesn't respect Shrink an takes all screen
+            .width(Length::Fixed(300.0)), // text container size required as horizontal_space doesn't respect Shrink an takes all screen
         )
         .center(Length::Fill) // fill the screen and center the content of overlay
         .style(|_| container::Style {

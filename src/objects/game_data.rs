@@ -77,7 +77,12 @@ impl LocationData for EmailQuestLocation {}
 impl LocationData for MessageQuestLocation {}
 impl LocationData for FillerItemLocation {}
 
-#[derive(Default, Debug, Clone)]
+pub trait SubLocationData: std::fmt::Debug + Default + Clone {}
+
+impl SubLocationData for EmailQuestSubLocation {}
+impl SubLocationData for FillerItemLocation {}
+
+#[derive(Default, Debug, Clone, Copy)]
 pub enum FillerItemLocation {
     #[default]
     None,
@@ -102,6 +107,15 @@ pub enum EmailQuestLocation {
     Spam,
     NewEmail,
     ReadEmail,
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Copy)]
+pub enum EmailQuestSubLocation {
+    #[default]
+    None,
+    Inbox,
+    Spam,
+    NewEmail,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

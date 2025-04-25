@@ -39,11 +39,15 @@ pkgs.mkShell {
       fira-code-symbols
       proggyfonts
 
-      pkgsCross.mingwW64.stdenv.cc
-      pkgsCross.mingwW64.windows.pthreads
+
+      # uncomment to build for windows
+      # pkgsCross.mingwW64.stdenv.cc
+      # pkgsCross.mingwW64.windows.pthreads
+
 
 
     rust-toolchain
+    wineWowPackages.stable
 
     # build Deps
     pkg-config

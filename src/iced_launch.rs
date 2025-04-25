@@ -1,7 +1,8 @@
 use iced::{Element, Executor, Settings, Task, Theme, application::Application};
 
 use crate::objects::game_data::{
-    EmailQuestItem, EmailQuestLocation, FillerItemLocation, MessageQuestItem, MessageQuestLocation, LocationData, HintData,
+    EmailQuestItem, EmailQuestLocation, EmailQuestSubLocation, FillerItemLocation, HintData,
+    LocationData, MessageQuestItem, MessageQuestLocation, SubLocationData,
 };
 use crate::views::{levels_menu, mailbox, main_menu, message_quest};
 
@@ -11,24 +12,24 @@ pub enum Message {
     ClosePopup,
     ShowHint,
     ChangeMailboxFolderLocation(EmailQuestLocation),
+    ChangeMailboxFolderSublocation(EmailQuestSubLocation),
     Empty,
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct ViewState<
-    T1: HintData,
-    T2: LocationData,
-> {
-    pub show_popup: bool,
-    pub popup_message: String,
+pub struct ViewState<T1: HintData, T2: LocationData, T3: SubLocationData> {
     pub location: T2,
+    pub sublocation: T3,
     pub hinted: T1,
+    // workaround to avoid adding extra data types and variables
+    // first element reserved for to replace popup message text
+    pub dynamic_objects: Vec<String>,
 }
 
-type MainMenuViewState = ViewState<FillerItemLocation, FillerItemLocation>;
-type LevelsMenuViewState = ViewState<FillerItemLocation, FillerItemLocation>;
-type EmailQuestViewState = ViewState<EmailQuestItem, EmailQuestLocation>;
-type MessageQuestViewState = ViewState<MessageQuestItem, MessageQuestLocation>;
+type MainMenuViewState = ViewState<FillerItemLocation, FillerItemLocation, FillerItemLocation>;
+type LevelsMenuViewState = ViewState<FillerItemLocation, FillerItemLocation, FillerItemLocation>;
+type EmailQuestViewState = ViewState<EmailQuestItem, EmailQuestLocation, EmailQuestSubLocation>;
+type MessageQuestViewState = ViewState<MessageQuestItem, MessageQuestLocation, FillerItemLocation>;
 
 #[derive(Debug, Clone)]
 pub enum CurrentView {
@@ -46,10 +47,10 @@ impl Default for MyApp {
     fn default() -> Self {
         Self {
             current_view: CurrentView::MainMenu(ViewState {
-                show_popup: true,
-                popup_message: "Welcome!".to_string(),
                 location: FillerItemLocation::None,
+                sublocation: FillerItemLocation::None,
                 hinted: FillerItemLocation::None,
+                dynamic_objects: vec![],
             }),
         }
     }
@@ -72,25 +73,28 @@ impl MyApp {
             Message::ClosePopup => {
                 // Handle popup closing for any view
                 match &mut self.current_view {
-                    CurrentView::MainMenu(state) => state.show_popup = false,
-                    CurrentView::LevelsMenu(state) => state.show_popup = false,
-                    CurrentView::Mailbox(state) => state.show_popup = false,
-                    CurrentView::MessageQuest(state) => state.show_popup = false,
+                    CurrentView::MainMenu(state) => state.dynamic_objects[0] = "".to_string(),
+                    CurrentView::LevelsMenu(state) => state.dynamic_objects[0] = "".to_string(),
+                    CurrentView::Mailbox(state) => state.dynamic_objects[0] = "".to_string(),
+                    CurrentView::MessageQuest(state) => state.dynamic_objects[0] = "".to_string(),
                 }
             }
             Message::ShowHint => match &mut self.current_view {
                 CurrentView::Mailbox(state) => {}
                 _ => {}
             },
-            Message::ChangeMailboxFolderLocation(location_l) => {
-                println!("Changing mailbox folder location to {:?}", location_l);
-                match &mut self.current_view {
-                    CurrentView::Mailbox(state) => {
-                        println!("inside match mailbox");
-                        state.location = location_l;
-                    },
-                    _ => {}
+            Message::ChangeMailboxFolderLocation(location_l) => match &mut self.current_view {
+                CurrentView::Mailbox(state) => {
+                    state.location = location_l;
+                    state.sublocation = EmailQuestSubLocation::None;
                 }
+                _ => {}
+            },
+            Message::ChangeMailboxFolderSublocation(location_l) => match &mut self.current_view {
+                CurrentView::Mailbox(state) => {
+                    state.sublocation = location_l;
+                }
+                _ => {}
             },
             Message::Empty => {}
         }
@@ -99,22 +103,22 @@ impl MyApp {
 
     fn view(&self) -> Element<Message> {
         match &self.current_view {
-            CurrentView::MainMenu(state) => main_menu::view(state.show_popup, &state.popup_message),
+            CurrentView::MainMenu(state) => main_menu::view(),
             CurrentView::LevelsMenu(state) => {
-                levels_menu::view(state.show_popup, &state.popup_message)
+                levels_menu::view()
             }
             CurrentView::Mailbox(state) => mailbox::view(
-                state.show_popup,
-                &state.popup_message,
                 state.location,
+                state.sublocation,
                 state.hinted,
+                state.dynamic_objects.clone(),
             ),
             CurrentView::MessageQuest(state) => message_quest::view(
-                state.show_popup,
-                &state.popup_message,
                 state.location,
+                state.sublocation,
                 state.hinted,
-            )
+                state.dynamic_objects.clone(),
+            ),
         }
     }
 }
