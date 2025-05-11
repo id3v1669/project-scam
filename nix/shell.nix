@@ -21,6 +21,7 @@ pkgs.mkShell {
     rustfmt
     clippy
     cargo-audit
+    cargo-modules
     cargo-deny
     clippy
     rust-analyzer

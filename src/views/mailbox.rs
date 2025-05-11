@@ -1,10 +1,8 @@
 use crate::iced_launch::Message;
-use crate::objects::game_data::EmailQuestItem::{
-    BlockedContent, EmailAttachment, EmailSender, SpamEmail, SpamFolder,
-};
+use crate::objects::game_data::EmailQuestItem;
 use iced::advanced::Widget;
 use iced::theme;
-use iced::widget::{button, column, container, horizontal_space, row, stack, text};
+use iced::widget::{button, column, container, horizontal_space, row, stack, text, text_input};
 use iced::{Color, Element, Length};
 
 pub fn view(
@@ -14,35 +12,22 @@ pub fn view(
     dynamic_objects: Vec<String>,
 ) -> Element<'static, Message> {
     let game_data = crate::objects::game_data::GAMEDATA.lock().unwrap();
-    let game_bar = container(row![
-        button("Hint").on_press(Message::Empty),
-        horizontal_space(),
-        text(format!(
-            "Stars: {}/{}",
-            game_data.email_quest.stars(),
-            game_data.email_quest.iter().count(),
-        )),
-        text(format!(
-            "Quests: {}/{}",
-            game_data.email_quest.completed(),
-            game_data.email_quest.iter().count(),
-        )),
+    let game_bar = crate::objects::custom_gui::unified_top_bar(&game_data);
+    let top_bar = container(row![
+        button("New email")
+            .on_press(Message::ChangeMailboxFolderSublocation(
+                crate::objects::game_data::EmailQuestSubLocation::NewEmail,
+            ))
+            .style(
+                move |_, status| crate::styles::buttons::regular_rounded_no_border(status, false)
+            ), //hinted == EmailQuestItem::NewEmail))
     ])
-    .style(|_| iced::widget::container::Style {
-        text_color: iced::Color::parse("#ebdbb2").unwrap().into(),
+    .style(|_| container::Style {
+        background: Some(iced::Background::Color(Color::from_rgb8(0x29, 0x29, 0x29))),
         ..Default::default()
     })
-    .height(Length::Fixed(30.0));
-    let top_bar =
-        container(row![button("New email").on_press(Message::Empty).style(
-            |_, status| crate::styles::buttons::new_email_button(status, false)
-        ),])
-        .style(|_| container::Style {
-            background: Some(iced::Background::Color(Color::from_rgb8(0x29, 0x29, 0x29))),
-            ..Default::default()
-        })
-        .padding(10)
-        .width(Length::Fill);
+    .padding(10)
+    .width(Length::Fill);
 
     // Left column
     let left_column = column![
@@ -55,9 +40,11 @@ pub fn view(
                     location,
                     crate::objects::game_data::EmailQuestLocation::Inbox
                 );
-                let inbox_button_hinted =
-                    (matches!(hinted, EmailSender | BlockedContent | EmailAttachment)
-                        && !inbox_button_active);
+                let inbox_button_hinted = (matches!(
+                    hinted,
+                    EmailQuestItem::EmailSender //| EmailQuestItem::BlockedContent
+                                                //| EmailQuestItem::EmailAttachment
+                ) && !inbox_button_active);
                 crate::styles::buttons::email_folder_button(
                     status,
                     inbox_button_hinted,
@@ -74,8 +61,10 @@ pub fn view(
                     location,
                     crate::objects::game_data::EmailQuestLocation::Spam
                 );
-                let spam_button_hinted =
-                    (matches!(hinted, SpamFolder | SpamEmail) && !spam_button_active);
+                let spam_button_hinted = (matches!(
+                    hinted,
+                    EmailQuestItem::SpamFolder | EmailQuestItem::SpamEmail
+                ) && !spam_button_active);
                 crate::styles::buttons::email_folder_button(
                     status,
                     spam_button_hinted,
@@ -103,7 +92,7 @@ pub fn view(
                         .spacing(4),
                     )
                     .on_press(Message::ChangeMailboxFolderSublocation(
-                        crate::objects::game_data::EmailQuestSubLocation::Inbox,
+                        crate::objects::game_data::EmailQuestSubLocation::Inbox1,
                     ))
                     .padding(iced::Padding {
                         top: 0.0,
@@ -114,11 +103,13 @@ pub fn view(
                     .style(move |_, status| {
                         let email = matches!(
                             sublocation,
-                            crate::objects::game_data::EmailQuestSubLocation::Inbox
+                            crate::objects::game_data::EmailQuestSubLocation::Inbox1
                         );
-                        let email_button_hinted =
-                            (matches!(hinted, EmailSender | BlockedContent | EmailAttachment)
-                                && !email);
+                        let email_button_hinted = (matches!(
+                            hinted,
+                            EmailQuestItem::EmailSender //| EmailQuestItem::BlockedContent
+                                                        //| EmailQuestItem::EmailAttachment
+                        ) && !email);
                         crate::styles::buttons::email_button(status, email_button_hinted, email)
                     })
                     .width(Length::Fill)
@@ -174,8 +165,10 @@ pub fn view(
                             sublocation,
                             crate::objects::game_data::EmailQuestSubLocation::Spam
                         );
-                        let email_button_hinted =
-                            (matches!(hinted, SpamFolder | SpamEmail) && !email);
+                        let email_button_hinted = (matches!(
+                            hinted,
+                            EmailQuestItem::SpamFolder | EmailQuestItem::SpamEmail
+                        ) && !email);
                         crate::styles::buttons::email_button(status, email_button_hinted, email)
                     })
                     .width(Length::Fill)
@@ -206,62 +199,133 @@ pub fn view(
 
     let right_column = match sublocation {
         crate::objects::game_data::EmailQuestSubLocation::None => {
-            container(text("Select mail to read"))
+            container(text("Select email to read"))
+            .width(Length::Fill)
+                .height(Length::Fill)
+                .center(Length::Fill)
+                .style(|_| container::Style {
+                    text_color: Color::parse("#ebdbb2").unwrap().into(),
+                    ..Default::default()
+                })
         }
-        crate::objects::game_data::EmailQuestSubLocation::Inbox => container(column![
-            container(text("Reset Password").size(20).font(iced::Font {
-                family: iced::font::Family::SansSerif,
-                weight: iced::font::Weight::Bold,
-                stretch: iced::font::Stretch::Normal,
-                style: iced::font::Style::Normal,
-            }))
-            .width(Length::Fill)
-            .height(Length::Fixed(60.0))
-            .padding(15) //workadound for text misalignment with container
-            .style(|_| container::Style {
-                background: Some(Color::parse("#504945").unwrap().into()),
-                border: iced::Border {
-                    color: Color::TRANSPARENT,
-                    width: 10.0,
-                    radius: 0.0.into(),
-                },
-                ..Default::default()
-            }),
-            container(column![
-                row![text("From: ").size(16), button("Google"),],
-                row![text("To: example@domain.com").size(16),],
-                crate::objects::custom_gui::splitter(
-                    Color::parse("#928374").unwrap().into(),
-                    2.0,
-                    10.0,
-                    10.0
-                ),
-                container(text("Centered Content").size(16))
-            ])
-            .width(Length::Fill)
-            .height(Length::Fill)
-            .padding(15) //workadound for content misalignment with container
-            .style(|_| container::Style {
-                background: Some(Color::parse("#504945").unwrap().into()),
-                border: iced::Border {
-                    color: Color::TRANSPARENT,
-                    width: 10.0,
-                    radius: 0.0.into(),
-                },
-                ..Default::default()
-            })
-        ])
-        .style(|_| container::Style {
-            text_color: Color::parse("#ebdbb2").unwrap().into(),
-            ..Default::default()
-        })
-        .padding(10)
-        .width(Length::Fill),
+        crate::objects::game_data::EmailQuestSubLocation::Inbox1 => {
+            container(crate::objects::custom_gui::email_base(
+                hinted == EmailQuestItem::EmailSender,
+                "Reset Password".to_string(),
+                dynamic_objects[1].clone(),
+                1,
+                2,
+                column![text("Convining email with recovery link.").size(25),],
+            ))
+        }
         crate::objects::game_data::EmailQuestSubLocation::Spam => {
-            container(column![text("Blocked content selected")])
+            container(crate::objects::custom_gui::email_base(
+                hinted == EmailQuestItem::EmailSender,
+                "Trixie".to_string(),
+                dynamic_objects[3].clone(),
+                3,
+                4,
+                column![text("Convining email with recovery link.").size(25),],
+            ))
         }
         crate::objects::game_data::EmailQuestSubLocation::NewEmail => {
-            container(column![text("Email attachment selected")])
+            container(column![
+                container(
+                    text_input("Title", &dynamic_objects[7])
+                        .on_input(|s| Message::ContentChanged(7, s))
+                        .style(|_, _| text_input::Style {
+                            background: Color::parse("#7c6f64").unwrap().into(),
+                            value: Color::parse("#ebdbb2").unwrap().into(),
+                            border: iced::Border::default(),
+                            icon: Color::TRANSPARENT.into(),
+                            placeholder: Color::parse("#a89984").unwrap().into(),
+                            selection: Color::TRANSPARENT.into(),
+                        })
+                )
+                .width(Length::Fill)
+                .height(Length::Fixed(60.0))
+                .padding(15) // workadound for text misalignment with container
+                .style(|_| container::Style {
+                    background: Some(Color::parse("#504945").unwrap().into()),
+                    border: iced::Border {
+                        color: Color::TRANSPARENT,
+                        width: 10.0,
+                        radius: 0.0.into(),
+                    },
+                    ..Default::default()
+                }),
+                container(column![
+                    row![
+                        text("From: ").size(16),
+                        text_input("Email...", &dynamic_objects[6])
+                            .on_input(|s| Message::ContentChanged(6, s))
+                            .style(|_, _| text_input::Style {
+                                background: Color::parse("#7c6f64").unwrap().into(),
+                                value: Color::parse("#ebdbb2").unwrap().into(),
+                                border: iced::Border::default(),
+                                icon: Color::TRANSPARENT.into(),
+                                placeholder: Color::TRANSPARENT.into(),
+                                selection: Color::TRANSPARENT.into(),
+                            })
+                            .width(Length::Fixed(200.0)),
+                        horizontal_space(),
+                        button("Send")
+                            .on_press(Message::SendEmail)
+                            .style(|_, status| {
+                                crate::styles::buttons::regular_rounded_border_as_margin(
+                                    status, false, 5.0,
+                                )
+                            })
+                    ],
+                    crate::objects::custom_gui::splitter(
+                        Color::parse("#928374").unwrap().into(),
+                        2.0,
+                        10.0,
+                        10.0
+                    ),
+                    container(
+                        text_input("Email...", &dynamic_objects[5])
+                            .on_input(|s| Message::ContentChanged(5, s))
+                            .style(|_, _| text_input::Style {
+                                background: Color::TRANSPARENT.into(),
+                                value: Color::parse("#ebdbb2").unwrap().into(),
+                                border: iced::Border::default(),
+                                icon: Color::TRANSPARENT.into(),
+                                placeholder: Color::TRANSPARENT.into(),
+                                selection: Color::TRANSPARENT.into(),
+                            })
+                    )
+                    .style(|_| iced::widget::container::Style {
+                        background: Some(Color::parse("#7c6f64").unwrap().into()),
+                        text_color: iced::Color::parse("#ebdbb2").unwrap().into(),
+                        border: crate::styles::borders::email_border(),
+                        ..Default::default()
+                    })
+                    .height(Length::Fill)
+                ])
+                .width(Length::Fill)
+                .height(Length::Fill)
+                .padding(15) //workadound for content misalignment with container
+                .style(|_| container::Style {
+                    background: Some(Color::parse("#504945").unwrap().into()),
+                    border: iced::Border {
+                        color: Color::TRANSPARENT,
+                        width: 10.0,
+                        radius: 0.0.into(),
+                    },
+                    ..Default::default()
+                })
+            ])
+            .style(|_| container::Style {
+                text_color: Color::parse("#ebdbb2").unwrap().into(),
+                ..Default::default()
+            })
+            .padding(10)
+            .width(Length::Fill)
+            //container(
+            //    text_input("Type something here...", &dynamic_objects[5])
+            //    .on_input(|s|Message::ContentChanged(5,s))
+            //)
         }
     };
 
@@ -285,16 +349,7 @@ pub fn view(
                         horizontal_space(),
                         button("x")
                             .on_press(Message::ClosePopup)
-                            .style(|_: &iced::Theme, _| iced::widget::button::Style {
-                                background: Some(Color::parse("#282828").unwrap().into()),
-                                text_color: Color::parse("#fb4934").unwrap().into(),
-                                border: iced::Border {
-                                    color: Color::parse("#fb4934").unwrap().into(),
-                                    width: 1.0,
-                                    radius: 12.0.into(),
-                                },
-                                ..Default::default()
-                            })
+                            .style(|_, status| crate::styles::buttons::danger_button_style(status))
                             .padding(iced::Padding {
                                 top: 1.0,
                                 right: 8.0,

@@ -1,5 +1,5 @@
 [package]
-name = "project-scam"
+name = "con-quest"
 version = "0.1.0"
 edition = "2024"
 
@@ -12,6 +12,7 @@ iced = { version = "0.13.1" , features = [
     "advanced",
     "debug",
 ]}
+image = "0.25.6"
 
 clap = { version = "4.5.34", features = ["derive"] }
 env_logger = "0.11.7"
