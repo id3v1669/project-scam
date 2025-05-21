@@ -347,7 +347,7 @@ impl ConQuest {
 }
 
 pub fn custom_start() -> Result<(), Box<dyn std::error::Error>> {
-    iced::application("Somename1", ConQuest::update, ConQuest::view)
+    iced::application("ConQuest", ConQuest::update, ConQuest::view)
         .antialiasing(true)
         .run()?;
     Ok(())

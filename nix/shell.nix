@@ -46,8 +46,6 @@ pkgs.mkShell {
       #pkgsCross.mingwW64.buildPackages.gcc
       #pkgsCross.mingwW64.windows.pthreads
 
-
-
     rust-toolchain
     wineWowPackages.stable
 

@@ -25,7 +25,7 @@ pub static DYNAMIC_OBJECTS_QUIZ: Lazy<Vec<String>> = Lazy::new(|| {
     vec![
         "Welcome to ConQuest Quiz game. Secure one of four answes and press \"Next\".".to_string(),
         "0".to_string(), //current quiz
-        "15".to_string(),                    //quiz ammount
+        "15".to_string(), //quiz ammount
         "1".to_string(), //location - quiz or result
 
         // quiz1
@@ -37,7 +37,7 @@ pub static DYNAMIC_OBJECTS_QUIZ: Lazy<Vec<String>> = Lazy::new(|| {
         "".to_string(),                     //option picked
         "You get an email from “support@micr0soft.com” asking you to reset your password right away. What should you do?".to_string(), //description
         "Scammers often use similar-looking email addresses (like micr0soft.com instead of microsoft.com). Always check.".to_string(), //result
-        
+
         // quiz2
         "Restart your computer".to_string(),                //option1
         "Close the browser or tab".to_string(),                //option2

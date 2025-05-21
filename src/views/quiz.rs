@@ -122,6 +122,17 @@ pub fn view(
                         .into()
                     }),
                 )
+                .chain(std::iter::once(
+                    button("Back to menu")
+                        .on_press(Message::MainMenu)
+                        .style(|_, status| {
+                            crate::styles::buttons::regular_rounded_border_as_margin(
+                                status, false, 5.0,
+                            )
+                        })
+                        .width(Length::Fixed(160.0))
+                        .into(),
+                ))
                 .collect::<Vec<_>>(),
         )
         .align_x(Alignment::Center),
