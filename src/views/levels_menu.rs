@@ -14,22 +14,19 @@ pub fn view() -> Element<'static, Message> {
             text("Pick a level to play"),
             crate::objects::custom_gui::splitter(iced::Color::TRANSPARENT, 15.0, 0.0, 0.0),
             button("Mailbox Quest")
-                .on_press(
-                    Message::SwitchView(
-                        crate::iced_launch::CurrentView::Mailbox(
-                            crate::iced_launch::ViewState {
-                                location: EmailQuestLocation::Inbox,
-                                sublocation: EmailQuestSubLocation::None,
-                                hinted: EmailQuestItem::None,
-                                dynamic_objects: {
-                                    let mut dynamic_objects =
-                                        crate::objects::game_data::DYNAMIC_OBJECTS_MAILBOX.to_vec();
-                                    dynamic_objects[0] = "".to_string();
-                                    dynamic_objects
-                                },
-                            }
-                        ))
-                )
+                .on_press(Message::SwitchView(
+                    crate::iced_launch::CurrentView::Mailbox(crate::iced_launch::ViewState {
+                        location: EmailQuestLocation::Inbox,
+                        sublocation: EmailQuestSubLocation::None,
+                        hinted: EmailQuestItem::None,
+                        dynamic_objects: {
+                            let mut dynamic_objects =
+                                crate::objects::game_data::DYNAMIC_OBJECTS_MAILBOX.to_vec();
+                            dynamic_objects[0] = "".to_string();
+                            dynamic_objects
+                        },
+                    })
+                ))
                 .style(|_, status| regular_rounded_no_border(status, false))
                 .width(iced::Length::Fixed(150.0)),
             crate::objects::custom_gui::splitter(iced::Color::TRANSPARENT, 15.0, 0.0, 0.0),

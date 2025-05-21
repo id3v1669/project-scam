@@ -21,6 +21,207 @@ pub static DYNAMIC_OBJECTS_MAILBOX: Lazy<Vec<String>> = Lazy::new(|| {
 ]
 });
 
+pub static DYNAMIC_OBJECTS_QUIZ: Lazy<Vec<String>> = Lazy::new(|| {
+    vec![
+        "Welcome to ConQuest Quiz game. Secure one of four answes and press \"Next\".".to_string(),
+        "0".to_string(), //current quiz
+        "15".to_string(),                    //quiz ammount
+        "1".to_string(), //location - quiz or result
+
+        // quiz1
+        "Click the link and reset your password".to_string(),                 //option1
+        "Ignore the email".to_string(),                 //option2
+        "Carefully check the sender’s email address and confirm it on the official Microsoft website".to_string(),                 //option3
+        "Forward the email to friends to warn them".to_string(),                 //option4
+        "3".to_string(),                   //correct options
+        "".to_string(),                     //option picked
+        "You get an email from “support@micr0soft.com” asking you to reset your password right away. What should you do?".to_string(), //description
+        "Scammers often use similar-looking email addresses (like micr0soft.com instead of microsoft.com). Always check.".to_string(), //result
+        
+        // quiz2
+        "Restart your computer".to_string(),                //option1
+        "Close the browser or tab".to_string(),                //option2
+        "Click the link quickly".to_string(),                //option3
+        "Download the antivirus from the pop-up".to_string(),                //option4
+        "2".to_string(),                   //correct options
+        "".to_string(),                     //option picked
+        "A message appears on your screen saying “Your device is infected! Click here to fix it now.” What’s the safest choice?".to_string(), //description
+        "Real antivirus software doesn’t show up through random browser messages.".to_string(), //result
+                                            // Here continue
+
+        // quiz3
+        "Give your name and address to get the prize".to_string(),
+        "Click the link to claim it".to_string(),
+        "Report the email as a scam".to_string(),
+        "Reply to ask for more information".to_string(),
+        "3".to_string(),
+        "".to_string(),
+        "An email says you’ve won a gift card and asks for your personal details to claim it. What’s the safest action?".to_string(),
+        "Messages saying “You’ve won” are often scams. Never share personal information.".to_string(),
+
+        // quiz4
+        "Spelling and grammar mistakes".to_string(),
+        "Urgent requests (“Act Now!”)".to_string(),
+        "Strange email addresses".to_string(),
+        "All of the above".to_string(),
+        "4".to_string(),
+        "".to_string(),
+        "Which of these is a warning sign in a suspicious email?".to_string(),
+        "Scam emails often have many warning signs. Be careful!".to_string(),
+
+        // quiz5
+        "Click the link".to_string(),
+        "Call the bank using the number in the message".to_string(),
+        "Log in through the bank’s official website, not the link".to_string(),
+        "Forward it to friends".to_string(),
+        "3".to_string(),
+        "".to_string(),
+        "Your bank sends you a message asking to verify your account through a link. What should you do first?".to_string(),
+        "Always log in directly through the official website. Links in messages can be fake.".to_string(),
+
+        // quiz6
+        "Contact your bank through their official website or app".to_string(),
+        "Click the link to check your account".to_string(),
+        "Ignore it".to_string(),
+        "Call your bank using the number in the message".to_string(),
+        "1".to_string(),
+        "".to_string(),
+        "You get a text message saying: “We’ve noticed strange activity on your bank account. Click here to secure it.” What should you do?".to_string(),
+        "Don’t trust links in unexpected texts. Use official ways to contact them.".to_string(),
+
+        // quiz7
+        "A lucky break".to_string(),
+        "A scam called \"advance fee fraud\"".to_string(),
+        "A common online job offer".to_string(),
+        "A giveaway".to_string(),
+        "2".to_string(),
+        "".to_string(),
+        "Someone you don’t know on social media offers to send you money if you send them a small payment first. What is this?".to_string(),
+        "This is a common scam—never send money to get money back.".to_string(),
+
+        // quiz8
+        "Click to claim it".to_string(),
+        "Take a screenshot and share it".to_string(),
+        "Ignore it and close the tab".to_string(),
+        "Enter fake information to see what happens".to_string(),
+        "3".to_string(),
+        "".to_string(),
+        "A pop-up appears saying, “Congratulations! You’re the 100th visitor! Claim your prize!” What should you do?".to_string(),
+        "This is a scam trying to steal your information or harm your device.".to_string(),
+
+        // quiz9
+        "Send them money".to_string(),
+        "Ask for more details in an email".to_string(),
+        "Reply and offer help".to_string(),
+        "Contact your friend another way (like by phone) to check".to_string(),
+        "4".to_string(),
+        "".to_string(),
+        "You receive an email from your friend saying they are stuck overseas and need money. What’s the best response?".to_string(),
+        "Scammers often use hacked accounts to send fake emails. Always verify through another method.".to_string(),
+
+        // quiz10
+        "password123".to_string(),
+        "John2020".to_string(),
+        "Il0vePizza!@#".to_string(),
+        "12345678".to_string(),
+        "3".to_string(),
+        "".to_string(),
+        "Which of these passwords is the safest?".to_string(),
+        "Strong passwords mix letters, numbers, and symbols".to_string(),
+
+        // quiz11
+        "Hover over the link to see where it goes".to_string(),
+        "Click quickly so you don’t miss out".to_string(),
+        "Copy it and paste it in your browser".to_string(),
+        "Trust it if the logo looks real".to_string(),
+        "1".to_string(),
+        "".to_string(),
+        "What should you do before clicking any link in an email or message?".to_string(),
+        "Hovering shows the true destination of a link. Always check it.".to_string(),
+
+        // quiz12
+        "Urgent requests".to_string(),
+        "Generic greetings like “Dear user”".to_string(),
+        "Asking for private information".to_string(),
+        "Personalized emails from real companies".to_string(),
+        "4".to_string(),
+        "".to_string(),
+        "Which of these is NOT a common sign of a scam?".to_string(),
+        "Real companies use personalized and secure messages.".to_string(),
+
+        // quiz13
+        "Sure, let’s do it!".to_string(),
+        "Ask for proof".to_string(),
+        "Report them and protect your account".to_string(),
+        "Tell them your cat’s name instead".to_string(),
+        "3".to_string(),
+        "".to_string(),
+        "You’re playing your favorite game and someone messages: “I’ll give you 10,000 coins—just share your login.” What should you do?".to_string(),
+        "Never share your login, even for imaginary coins.".to_string(),
+
+        // quiz14
+        "They must be forgetful. Let me help.".to_string(),
+        "Wait… banks don’t ask for passwords like that.".to_string(),
+        "I’ll email my PIN too to be extra helpful.".to_string(),
+        "Trust them; they said “please.”".to_string(),
+        "2".to_string(),
+        "".to_string(),
+        "A message says, “This is your bank. We lost your account. Please send your password to fix it.” What do you think?".to_string(),
+        "Banks never ask for sensitive information through email. Never.".to_string(),
+
+        // quiz15
+        "Sure thing, Boss!".to_string(),
+        "Ignore it. That’s not how bosses act.".to_string(),
+        "Ask if they want snacks too.".to_string(),
+        "Send them Monopoly gift cards instead.".to_string(),
+        "24".to_string(),
+        "".to_string(),
+        "You get an email from “YourBoss123@notarealcompany.biz” saying, “Send me gift cards, fast!” What do you do?".to_string(),
+        "Scammers pretend to be people you trust. Always double-check.".to_string(),
+
+        // quiz16
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+
+        // quiz17
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+
+        // quiz18
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+
+        // quiz19
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+        "".to_string(),
+
+    ]
+});
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct GameData {
     pub email_quest: EmailQuest,
@@ -103,11 +304,11 @@ impl GameData {
         match std::fs::read_to_string(file_path) {
             Ok(file) => match serde_json::from_str(&file) {
                 Ok(data) => {
-                    println!("Loaded game data: {:?}", data);
+                    //println!("Loaded game data: {:?}", data);
                     data
                 }
                 Err(_) => {
-                    println!("Failed to parse game data, creating new one");
+                    //println!("Failed to parse game data, creating new one");
                     Self::new()
                 }
             },

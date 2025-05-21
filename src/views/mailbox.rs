@@ -200,7 +200,7 @@ pub fn view(
     let right_column = match sublocation {
         crate::objects::game_data::EmailQuestSubLocation::None => {
             container(text("Select email to read"))
-            .width(Length::Fill)
+                .width(Length::Fill)
                 .height(Length::Fill)
                 .center(Length::Fill)
                 .style(|_| container::Style {

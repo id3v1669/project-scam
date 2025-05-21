@@ -5,10 +5,11 @@ use crate::objects::game_data::{
     FillerItemLocation, GameData, HintData, LocationData, MessageQuestItem, MessageQuestLocation,
     SubLocationData,
 };
-use crate::views::{levels_menu, mailbox, main_menu, message_quest};
+use crate::views::{levels_menu, mailbox, main_menu, message_quest, quiz};
 
 #[derive(Debug, Clone)]
 pub enum Message {
+    FinishQuiz,
     QuestButtonClicked,
     SendEmail,
     ContentChanged(usize, String),
@@ -36,6 +37,7 @@ pub struct ViewState<T1: HintData, T2: LocationData, T3: SubLocationData> {
 
 type MainMenuViewState = ViewState<FillerItemLocation, FillerItemLocation, FillerItemLocation>;
 type LevelsMenuViewState = ViewState<FillerItemLocation, FillerItemLocation, FillerItemLocation>;
+type QuizQuestViewState = ViewState<FillerItemLocation, FillerItemLocation, FillerItemLocation>;
 type EmailQuestViewState = ViewState<EmailQuestItem, EmailQuestLocation, EmailQuestSubLocation>;
 type MessageQuestViewState = ViewState<MessageQuestItem, MessageQuestLocation, FillerItemLocation>;
 
@@ -43,6 +45,7 @@ type MessageQuestViewState = ViewState<MessageQuestItem, MessageQuestLocation, F
 pub enum CurrentView {
     MainMenu(MainMenuViewState),
     LevelsMenu(LevelsMenuViewState),
+    Quiz(QuizQuestViewState),
     Mailbox(EmailQuestViewState),
     MessageQuest(MessageQuestViewState),
 }
@@ -75,6 +78,17 @@ impl ConQuest {
 
     fn update(&mut self, message: Message) -> Task<Message> {
         match message {
+            Message::FinishQuiz => {
+                //Message::ContentChanged(0, "Quest complete".to_string())
+                match &mut self.current_view {
+                    CurrentView::Quiz(state) => {
+                        state.dynamic_objects[0] =
+                            "Congratulations, you finished the quiz.".to_string();
+                        state.dynamic_objects[3] = "2".to_string();
+                    }
+                    _ => {}
+                }
+            }
             Message::QuestButtonClicked => {
                 let mut game_data = crate::objects::game_data::GAMEDATA.lock().unwrap();
                 match &mut self.current_view {
@@ -98,6 +112,9 @@ impl ConQuest {
                     state.dynamic_objects[index] = content;
                 }
                 CurrentView::MessageQuest(state) => {
+                    state.dynamic_objects[index] = content;
+                }
+                CurrentView::Quiz(state) => {
                     state.dynamic_objects[index] = content;
                 }
                 _ => {}
@@ -151,13 +168,12 @@ impl ConQuest {
             Message::SwitchView(view_type) => {
                 self.current_view = view_type;
             }
-            Message::ClosePopup => {
-                match &mut self.current_view {
-                    CurrentView::Mailbox(state) => state.dynamic_objects[0] = "".to_string(),
-                    CurrentView::MessageQuest(state) => state.dynamic_objects[0] = "".to_string(),
-                    _ => {}
-                }
-            }
+            Message::ClosePopup => match &mut self.current_view {
+                CurrentView::Mailbox(state) => state.dynamic_objects[0] = "".to_string(),
+                CurrentView::MessageQuest(state) => state.dynamic_objects[0] = "".to_string(),
+                CurrentView::Quiz(state) => state.dynamic_objects[0] = "".to_string(),
+                _ => {}
+            },
             Message::ShowHint => match &mut self.current_view {
                 CurrentView::Mailbox(state) => {}
                 _ => {}
@@ -308,6 +324,12 @@ impl ConQuest {
         match &self.current_view {
             CurrentView::MainMenu(state) => main_menu::view(),
             CurrentView::LevelsMenu(state) => levels_menu::view(),
+            CurrentView::Quiz(state) => quiz::view(
+                state.location,
+                state.sublocation,
+                state.hinted,
+                state.dynamic_objects.clone(),
+            ),
             CurrentView::Mailbox(state) => mailbox::view(
                 state.location,
                 state.sublocation,

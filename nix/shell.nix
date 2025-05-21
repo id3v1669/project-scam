@@ -42,8 +42,9 @@ pkgs.mkShell {
 
 
       # uncomment to build for windows
-      # pkgsCross.mingwW64.stdenv.cc
-      # pkgsCross.mingwW64.windows.pthreads
+      #pkgsCross.mingwW64.stdenv.cc
+      #pkgsCross.mingwW64.buildPackages.gcc
+      #pkgsCross.mingwW64.windows.pthreads
 
 
 
